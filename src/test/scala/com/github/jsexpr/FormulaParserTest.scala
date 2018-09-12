@@ -90,7 +90,7 @@ class FormulaParserTest extends Specification {
   }
 
   def parse(s: String): Formula = {
-    val parser = new FormulaParser(s)
+    val parser = FormulaParser(s)
     parser.InputLine.run() match {
       case Success(result) => result
       case Failure(e: ParseError) => sys.error(parser.formatError(e, new ErrorFormatter(showTraces = true)))

@@ -16,37 +16,39 @@ object FormulaAST {
 
   case class InvertOperation(argument: Formula) extends UnaryOperation(Identifier("!"), argument)
 
-  abstract class BinaryOperation(op: Identifier, lhs: Formula, rhs: Formula) extends Formula
+  abstract class BinaryOperation(val op: Identifier, val lhs: Formula, val rhs: Formula) extends Formula
 
-  case class AdditionOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("+"), lhs, rhs)
+  case class AdditionOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("+"), lhs, rhs)
 
-  case class SubtractionOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("-"), lhs, rhs)
+  case class SubtractionOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("-"), lhs, rhs)
 
-  case class MultiplicationOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("*"), lhs, rhs)
+  case class MultiplicationOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("*"), lhs, rhs)
 
-  case class DivisionOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("/"), lhs, rhs)
+  case class DivisionOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("/"), lhs, rhs)
 
-  case class AndOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("&&"), lhs, rhs)
+  case class AndOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("&&"), lhs, rhs)
 
-  case class OrOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("&&"), lhs, rhs)
+  case class OrOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("&&"), lhs, rhs)
 
-  case class GreaterThanOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier(">"), lhs, rhs)
-  case class GreaterOrEqualThanOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier(">="), lhs, rhs)
-  case class LessThanOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("<"), lhs, rhs)
-  case class LessOrEqualThanOperation(lhs: Formula, rhs: Formula) extends BinaryOperation(Identifier("<="), lhs, rhs)
+  case class GreaterThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier(">"), lhs, rhs)
+
+  case class GreaterOrEqualThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier(">="), lhs, rhs)
+
+  case class LessThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<"), lhs, rhs)
+
+  case class LessOrEqualThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<="), lhs, rhs)
 }
 
 object FormulaValue {
-  abstract class Value
+  sealed trait Value
 
   case class TrueValue() extends Value
-
   case class FalseValue() extends Value
-
   case class NullValue() extends Value
-
   case class FNumber(number: BigDecimal) extends Value
   object FNumber {
+    def apply(n: Int) = new FNumber(BigDecimal(n))
+    def apply(n: Double) = new FNumber(BigDecimal(n))
     def apply(n: String) = new FNumber(BigDecimal(n))
   }
 

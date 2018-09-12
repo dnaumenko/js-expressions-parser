@@ -5,10 +5,10 @@ import com.github.jsexpr.FormulaValue._
 import org.parboiled2.CharPredicate.{Digit, Digit19, HexDigit}
 import org.parboiled2._
 
-class FormulaParser(val input: ParserInput) extends Parser
- with StringBuilding with WhiteSpace with Numbers with EscapedStrings with UnescapedString
-{
-  def InputLine = rule {
+case class FormulaParser(input: ParserInput) extends Parser
+ with StringBuilding with WhiteSpace with Numbers with EscapedStrings with UnescapedString {
+
+  def InputLine: Rule1[Formula] = rule {
     FormulaRule ~ EOI
   }
 
