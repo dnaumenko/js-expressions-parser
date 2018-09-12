@@ -87,6 +87,10 @@ class FormulaParserTest extends Specification {
     "parse '!true' to unary invert operation" in {
       parse("!true") === InvertOperation(Constant(TrueValue()))
     }
+
+    "parse dot-separated identifiers to identifier" in {
+      parse("user.name") === Identifier("user.name")
+    }
   }
 
   def parse(s: String): Formula = {

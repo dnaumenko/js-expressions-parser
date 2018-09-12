@@ -39,11 +39,20 @@ class FormulaEvalTest extends Specification {
       eval("!true") === FalseValue()
       eval("!false") === TrueValue()
     }
+
+    "evaluate expressions with given identifiers" in {
+      val env = Map("user.age" -> FNumber(42))
+      eval("user.age + 10", env) === FNumber(52)
+    }
+
+    "throw exception if tries to eval unknown identifier" in {
+      eval("user.age + 10") must throwAn[IllegalArgumentException]
+    }
   }
 
-  def eval(s: String): Value = {
+  def eval(s: String, env: Map[String, Value] = Map.empty): Value = {
     val parser = FormulaParser(s)
-    val eval = FormulaEval()
+    val eval = FormulaEval(env)
     parser.InputLine.run() match {
       case Success(result) => eval.eval(result)
       case Failure(e: ParseError) => sys.error(parser.formatError(e, new ErrorFormatter(showTraces = true)))

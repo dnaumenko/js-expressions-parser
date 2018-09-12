@@ -24,10 +24,14 @@ case class FormulaParser(input: ParserInput) extends Parser
       | ws('/') ~ SingleExpression ~> DivisionOperation)
   }
 
-  def SingleExpression: Rule1[Formula] = rule { WhiteSpace ~ (ConstExpression | UnaryExpression | Parens) ~ WhiteSpace }
+  def SingleExpression: Rule1[Formula] = rule { WhiteSpace ~ (ConstExpression | UnaryExpression | IdentExpression | Parens) ~ WhiteSpace }
 
   def ConstExpression: Rule1[Formula] = rule {
     Literal ~> Constant
+  }
+
+  def IdentExpression: Rule1[Formula] = rule {
+    capture(oneOrMore(CharPredicate.AlphaNum + CharPredicate('.'))) ~> Identifier
   }
 
   def Parens: Rule1[Formula] = rule {

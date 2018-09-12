@@ -10,11 +10,11 @@ object FormulaAST {
 
   case class Constant(value: Value) extends Formula
 
-  abstract class UnaryOperation(op: Identifier, argument: Formula) extends Formula
+  abstract class UnaryOperation(op: Identifier, val argument: Formula) extends Formula
 
-  case class MinusOperation(argument: Formula) extends UnaryOperation(Identifier("-"), argument)
+  case class MinusOperation(override val argument: Formula) extends UnaryOperation(Identifier("-"), argument)
 
-  case class InvertOperation(argument: Formula) extends UnaryOperation(Identifier("!"), argument)
+  case class InvertOperation(override val argument: Formula) extends UnaryOperation(Identifier("!"), argument)
 
   abstract class BinaryOperation(val op: Identifier, val lhs: Formula, val rhs: Formula) extends Formula
 
