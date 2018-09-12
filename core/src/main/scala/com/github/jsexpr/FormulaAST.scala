@@ -1,5 +1,7 @@
 package com.github.jsexpr
 
+import java.time.ZonedDateTime
+
 import com.github.jsexpr.FormulaValue.Value
 
 
@@ -37,20 +39,22 @@ object FormulaAST {
   case class LessThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<"), lhs, rhs)
 
   case class LessOrEqualThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<="), lhs, rhs)
+
+  case class FunctionOperation(op: Identifier, arguments: Seq[Formula]) extends Formula
 }
 
 object FormulaValue {
   sealed trait Value
-
   case class TrueValue() extends Value
   case class FalseValue() extends Value
   case class NullValue() extends Value
   case class FNumber(number: BigDecimal) extends Value
   object FNumber {
     def apply(n: Int) = new FNumber(BigDecimal(n))
+    def apply(n: Long) = new FNumber(BigDecimal(n))
     def apply(n: Double) = new FNumber(BigDecimal(n))
     def apply(n: String) = new FNumber(BigDecimal(n))
   }
-
   case class FString(string: String) extends Value
+  case class FDateTime(date: ZonedDateTime) extends Value
 }

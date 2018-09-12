@@ -2,7 +2,7 @@ package com.github.jsexpr
 
 import com.github.jsexpr.FormulaAST._
 import com.github.jsexpr.FormulaValue._
-import org.parboiled2.CharPredicate.{Digit, Digit19, HexDigit}
+import org.parboiled2.CharPredicate._
 import org.parboiled2._
 
 case class FormulaParser(input: ParserInput) extends Parser
@@ -24,14 +24,25 @@ case class FormulaParser(input: ParserInput) extends Parser
       | ws('/') ~ SingleExpression ~> DivisionOperation)
   }
 
-  def SingleExpression: Rule1[Formula] = rule { WhiteSpace ~ (ConstExpression | UnaryExpression | IdentExpression | Parens) ~ WhiteSpace }
+  def SingleExpression: Rule1[Formula] = rule {
+    WhiteSpace ~ (ConstExpression | UnaryExpression | FunctionExpression | IdentifierExpression | Parens) ~ WhiteSpace
+  }
 
   def ConstExpression: Rule1[Formula] = rule {
     Literal ~> Constant
   }
 
-  def IdentExpression: Rule1[Formula] = rule {
+  def IdentifierExpression: Rule1[Identifier] = rule {
     capture(oneOrMore(CharPredicate.AlphaNum + CharPredicate('.'))) ~> Identifier
+  }
+
+  def FunctionExpression: Rule1[Formula] = rule {
+    (IdentifierExpression ~ ws('(') ~ ArgumentsRule ~ ws(')')) ~> ((name: Identifier, arguments: Seq[Formula]) =>
+      FunctionOperation(name, arguments)) ~ WhiteSpace
+  }
+
+  def ArgumentsRule: Rule1[Seq[Formula]] = rule {
+    zeroOrMore(FormulaRule).separatedBy(ws(','))
   }
 
   def Parens: Rule1[Formula] = rule {
@@ -69,11 +80,11 @@ case class FormulaParser(input: ParserInput) extends Parser
 trait WhiteSpace { this: Parser =>
   val WhiteSpaceChar = CharPredicate(" \n\r\t\f")
 
-  def WhiteSpace = rule { zeroOrMore(WhiteSpaceChar) }
+  def WhiteSpace: Rule0 = rule { zeroOrMore(WhiteSpaceChar) }
 
-  def ws(c: Char) = rule { c ~ WhiteSpace }
+  def ws(c: Char): Rule0 = rule { c ~ WhiteSpace }
 
-  def ws(s: String) = rule { s ~ WhiteSpace }
+  def ws(s: String): Rule0 = rule { s ~ WhiteSpace }
 }
 
 trait Numbers { this: Parser =>
