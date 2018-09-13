@@ -48,6 +48,27 @@ class FormulaEvalTest extends Specification {
     "throw exception if tries to eval unknown identifier" in {
       eval("user.age + 10") must throwAn[IllegalArgumentException]
     }
+
+    "evaluate if statement with true/false predicate" in {
+      eval("if (true) 10") === FNumber(10)
+      eval("if (false) 10") === VoidValue()
+    }
+
+    "throw exception if not-boolean predicate given for if statement" in {
+      eval("if (10) 10") must throwAn[IllegalArgumentException]
+    }
+
+    "evaluate if/else statement" in {
+      eval("if (true) 10 else 20") === FNumber(10)
+      eval("if (false) 10 else 20") === FNumber(20)
+      eval("if (10) 20 else 30") must throwAn[IllegalArgumentException]
+    }
+
+    "evaluate ?: operator" in {
+      eval("true ? 10 : 20") === FNumber(10)
+      eval("false ? 10 : 20") === FNumber(20)
+      eval("10 ? 20 : 30") must throwAn[IllegalArgumentException]
+    }
   }
 
   def eval(s: String, env: Map[String, Value] = Map.empty): Value = {

@@ -2,7 +2,7 @@ package com.github.jsexpr
 
 import com.github.jsexpr.FormulaAST.UnaryOperation
 import com.github.jsexpr.FormulaAST._
-import com.github.jsexpr.FormulaValue.{FNumber, FalseValue, TrueValue, Value}
+import com.github.jsexpr.FormulaValue._
 
 trait FunctionsAware {
   def functions(): Map[String, Seq[Value] => Value] = Map.empty
@@ -46,6 +46,24 @@ case class FormulaEval(env: Map[String, Value] = Map.empty) extends FunctionsAwa
         .get(e.op.name)
         .map(_.apply(e.arguments.map(eval)))
         .getOrElse(throw new IllegalArgumentException(s"Unknown function for ${e.op.name}"))
+
+    case IfOperation(predicate, expression) =>
+      val pred = eval(predicate)
+
+      pred match {
+        case TrueValue() => eval(expression)
+        case FalseValue() => VoidValue()
+        case v => throw new IllegalArgumentException(s"If predicate should be boolean, got $v")
+      }
+
+    case IfElseOperation(predicate, expressionOnTrue, expressionOnFalse) =>
+      val pred = eval(predicate)
+
+      pred match {
+        case TrueValue() => eval(expressionOnTrue)
+        case FalseValue() => eval(expressionOnFalse)
+        case v => throw new IllegalArgumentException(s"If predicate should be boolean, got $v")
+      }
   }
 
   private def numOp(op: Identifier, lhs: Value, rhs: Value, f: (BigDecimal, BigDecimal) => BigDecimal) = (lhs, rhs) match {

@@ -6,7 +6,7 @@ import com.github.jsexpr.FormulaValue.{FDateTime, FNumber, FString, Value}
 import com.github.jsexpr.FunctionsAware
 
 object TimeFunctions {
-  val functions: Map[String, Seq[Value] => Value] = Map(
+  lazy val functions: Map[String, Seq[Value] => Value] = Map(
     "Now" -> now,
     "Day" -> day,
     "DayOfWeek" -> dayOfWeek,

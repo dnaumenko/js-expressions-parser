@@ -41,10 +41,15 @@ object FormulaAST {
   case class LessOrEqualThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<="), lhs, rhs)
 
   case class FunctionOperation(op: Identifier, arguments: Seq[Formula]) extends Formula
+
+  case class IfOperation(predicate: Formula, expressionOnTrue: Formula) extends Formula
+
+  case class IfElseOperation(predicate: Formula, expressionOnTrue: Formula, expressionOnFalse: Formula) extends Formula
 }
 
 object FormulaValue {
   sealed trait Value
+  case class VoidValue() extends Value
   case class TrueValue() extends Value
   case class FalseValue() extends Value
   case class NullValue() extends Value

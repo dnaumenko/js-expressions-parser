@@ -37,8 +37,8 @@ class TimeFunctionsTest extends Specification {
   }
 
   def eval(s: String, env: Map[String, Value] = Map.empty): Value = {
-    val parser = FormulaParser(s)
     val eval = new FormulaEval with TimeFunctions
+    val parser = FormulaParser(s)
     parser.InputLine.run() match {
       case Success(result) => eval.eval(result)
       case Failure(e: ParseError) => sys.error(parser.formatError(e, new ErrorFormatter(showTraces = true)))

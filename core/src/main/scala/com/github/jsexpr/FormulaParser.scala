@@ -1,6 +1,6 @@
 package com.github.jsexpr
 
-import com.github.jsexpr.FormulaAST._
+import com.github.jsexpr.FormulaAST.{Formula, _}
 import com.github.jsexpr.FormulaValue._
 import org.parboiled2.CharPredicate._
 import org.parboiled2._
@@ -15,13 +15,18 @@ case class FormulaParser(input: ParserInput) extends Parser
   def FormulaRule: Rule1[Formula] = rule {
     Term ~ zeroOrMore(
       ws('+') ~ Term ~> AdditionOperation
-      | ws('-') ~ Term ~> SubtractionOperation)
+      | ws('-') ~ Term ~> SubtractionOperation
+    )
   }
 
   def Term: Rule1[Formula] = rule {
-    SingleExpression ~ zeroOrMore(
-      ws('*') ~ SingleExpression ~> MultiplicationOperation
-      | ws('/') ~ SingleExpression ~> DivisionOperation)
+    StatementExpression ~ zeroOrMore(
+      ws('*') ~ StatementExpression ~> MultiplicationOperation
+      | ws('/') ~ StatementExpression ~> DivisionOperation)
+  }
+
+  def StatementExpression: Rule1[Formula] = rule {
+    ConditionalExpression | SingleExpression
   }
 
   def SingleExpression: Rule1[Formula] = rule {
@@ -43,6 +48,14 @@ case class FormulaParser(input: ParserInput) extends Parser
 
   def ArgumentsRule: Rule1[Seq[Formula]] = rule {
     zeroOrMore(FormulaRule).separatedBy(ws(','))
+  }
+
+  def ConditionalExpression: Rule1[Formula] = rule {
+    run {
+      ( SingleExpression ~ ws('?') ~ FormulaRule ~ ws(':') ~ FormulaRule ~> IfElseOperation
+      | ws("if") ~ ws('(') ~ FormulaRule ~ ws(')') ~ FormulaRule ~ ws("else") ~ FormulaRule ~> IfElseOperation
+      | ws("if") ~ ws('(') ~ FormulaRule ~ ws(')') ~ FormulaRule ~> IfOperation)
+    }
   }
 
   def Parens: Rule1[Formula] = rule {

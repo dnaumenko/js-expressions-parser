@@ -91,6 +91,18 @@ class FormulaParserTest extends Specification {
     "parse dot-separated identifiers to identifier" in {
       parse("user.name") === Identifier("user.name")
     }
+
+    "parse if statement" in {
+      parse("if (true) 10") === IfOperation(Constant(TrueValue()), Constant(FNumber(10)))
+    }
+
+    "parse if/else statement" in {
+      parse("if (true) 10 else 2") === IfElseOperation(Constant(TrueValue()), Constant(FNumber(10)),  Constant(FNumber(2)))
+    }
+
+    "parse '?:' operarator" in {
+      parse("true ? 10 : 2") === IfElseOperation(Constant(TrueValue()), Constant(FNumber(10)),  Constant(FNumber(2)))
+    }
   }
 
   def parse(s: String): Formula = {
