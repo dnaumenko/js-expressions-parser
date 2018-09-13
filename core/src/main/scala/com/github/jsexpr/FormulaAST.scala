@@ -39,6 +39,10 @@ object FormulaAST {
   case class LessThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<"), lhs, rhs)
 
   case class LessOrEqualThanOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("<="), lhs, rhs)
+  
+  case class EqualOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("=="), lhs, rhs)
+
+  case class NotEqualOperation(override val lhs: Formula, override val rhs: Formula) extends BinaryOperation(Identifier("!="), lhs, rhs)
 
   case class FunctionOperation(op: Identifier, arguments: Seq[Formula]) extends Formula
 

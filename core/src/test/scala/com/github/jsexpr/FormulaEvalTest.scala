@@ -1,5 +1,6 @@
 package com.github.jsexpr
 
+import com.github.jsexpr.FormulaAST._
 import com.github.jsexpr.FormulaValue._
 import org.parboiled2.{ErrorFormatter, ParseError}
 import org.specs2.mutable.Specification
@@ -69,12 +70,27 @@ class FormulaEvalTest extends Specification {
       eval("false ? 10 : 20") === FNumber(20)
       eval("10 ? 20 : 30") must throwAn[IllegalArgumentException]
     }
+
+    "eval >,>=,<,<=,==,!= operator expressions" in {
+      eval("2 > 3") === FalseValue()
+      eval("2 < 3") === TrueValue()
+      eval("2 >= 3") === FalseValue()
+      eval("2 <= 3") === TrueValue()
+      eval("2 == 3") === FalseValue()
+      eval("2 != 3") === TrueValue()
+    }
+
+    "eval >,>=,<,<= operator expressions preserving priority of multiplication/addition operations" in {
+      eval("4 > 3 + 2") === FalseValue()
+      eval("4 >= 2 * 2 + 1") === FalseValue()
+      eval("2 * 2 + 1 <= 4") === FalseValue()
+    }
   }
 
   def eval(s: String, env: Map[String, Value] = Map.empty): Value = {
     val parser = FormulaParser(s)
     val eval = FormulaEval(env)
-    parser.InputLine.run() match {
+    parser.Line.run() match {
       case Success(result) => eval.eval(result)
       case Failure(e: ParseError) => sys.error(parser.formatError(e, new ErrorFormatter(showTraces = true)))
       case Failure(e) => throw e

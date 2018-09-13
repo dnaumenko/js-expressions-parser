@@ -8,18 +8,29 @@ import org.parboiled2._
 case class FormulaParser(input: ParserInput) extends Parser
  with StringBuilding with WhiteSpace with Numbers with EscapedStrings with UnescapedString {
 
-  def InputLine: Rule1[Formula] = rule {
+  def Line: Rule1[Formula] = rule {
     FormulaRule ~ EOI
   }
 
   def FormulaRule: Rule1[Formula] = rule {
     Term ~ zeroOrMore(
-      ws('+') ~ Term ~> AdditionOperation
-      | ws('-') ~ Term ~> SubtractionOperation
+      ws('>') ~ Term ~> GreaterThanOperation
+      | ws('<') ~ Term ~> LessThanOperation
+      | ws(">=") ~ Term ~> GreaterOrEqualThanOperation
+      | ws("<=") ~ Term ~> LessOrEqualThanOperation
+      | ws("==") ~ Term ~> EqualOperation
+      | ws("!=") ~ Term ~> NotEqualOperation
     )
   }
 
   def Term: Rule1[Formula] = rule {
+    FactorTerm ~ zeroOrMore(
+      ws('+') ~ FactorTerm ~> AdditionOperation
+      | ws('-') ~ FactorTerm ~> SubtractionOperation
+    )
+  }
+
+  def FactorTerm: Rule1[Formula] = rule {
     StatementExpression ~ zeroOrMore(
       ws('*') ~ StatementExpression ~> MultiplicationOperation
       | ws('/') ~ StatementExpression ~> DivisionOperation)

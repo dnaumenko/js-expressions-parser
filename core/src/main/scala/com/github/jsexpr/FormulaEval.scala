@@ -39,6 +39,12 @@ case class FormulaEval(env: Map[String, Value] = Map.empty) extends FunctionsAwa
         case _: SubtractionOperation => numOp(e.op, lhs, rhs, _ - _)
         case _: MultiplicationOperation => numOp(e.op, lhs, rhs, _ * _)
         case _: DivisionOperation => numOp(e.op, lhs, rhs, _ / _)
+        case _: GreaterThanOperation=> compareOp(e.op, lhs, rhs, _ > _)
+        case _: GreaterOrEqualThanOperation=> compareOp(e.op, lhs, rhs, _ >= _)
+        case _: LessThanOperation => compareOp(e.op, lhs, rhs, _ < _)
+        case _: LessOrEqualThanOperation=> compareOp(e.op, lhs, rhs, _ <= _)
+        case _: EqualOperation=> compareOp(e.op, lhs, rhs, _ == _)
+        case _: NotEqualOperation=> compareOp(e.op, lhs, rhs, _ != _)
       }
 
     case e: FunctionOperation =>
@@ -67,7 +73,12 @@ case class FormulaEval(env: Map[String, Value] = Map.empty) extends FunctionsAwa
   }
 
   private def numOp(op: Identifier, lhs: Value, rhs: Value, f: (BigDecimal, BigDecimal) => BigDecimal) = (lhs, rhs) match {
-      case (FNumber(a1), FNumber(a2)) => FNumber(f(a1, a2))
-      case (n1, n2) => throw new IllegalArgumentException(s"Can't apply ${op.name} operation for non-numbers: $n1, $n2")
-    }
+    case (FNumber(a1), FNumber(a2)) => FNumber(f(a1, a2))
+    case (n1, n2) => throw new IllegalArgumentException(s"Can't apply ${op.name} operation for non-numbers: $n1, $n2")
+  }
+
+  private def compareOp(op: Identifier, lhs: Value, rhs: Value, f: (BigDecimal, BigDecimal) => Boolean) = (lhs, rhs) match {
+    case (FNumber(a1), FNumber(a2)) => if (f(a1, a2)) TrueValue() else FalseValue()
+    case (n1, n2) => throw new IllegalArgumentException(s"Can't apply ${op.name} operation for non-numbers: $n1, $n2")
+  }
 }

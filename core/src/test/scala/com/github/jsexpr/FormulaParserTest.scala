@@ -22,23 +22,23 @@ class FormulaParserTest extends Specification {
     }
 
     "parse '2' to number constant" in {
-      parse("2") === Constant(FNumber(BigDecimal(2)))
+      parse("2") === Constant(FNumber(2))
     }
 
     "parse '-1' to number constant" in {
-      parse("-1") === Constant(FNumber(BigDecimal(-1)))
+      parse("-1") === Constant(FNumber(-1))
     }
 
     "parse '1.2' to number constant" in {
-      parse("1.2") === Constant(FNumber(BigDecimal(1.2)))
+      parse("1.2") === Constant(FNumber(1.2))
     }
 
     "parse '-1E10' to number constant" in {
-      parse("-1E10") === Constant(FNumber(BigDecimal(-1E+10)))
+      parse("-1E10") === Constant(FNumber(-1E+10))
     }
 
     "parse '12.34e-10' to number constant" in {
-      parse("12.34e-10") === Constant(FNumber(BigDecimal(12.34e-10)))
+      parse("12.34e-10") === Constant(FNumber(12.34e-10))
     }
 
     "parse \"'xyz\"' to string constant" in {
@@ -51,32 +51,62 @@ class FormulaParserTest extends Specification {
     }
 
     "parse arithemetic expressions with addition" in {
-      parse("1 + 1") === AdditionOperation(Constant(FNumber(BigDecimal(1))), Constant(FNumber(BigDecimal(1))))
+      parse("1 + 1") === AdditionOperation(Constant(FNumber(1)), Constant(FNumber(1)))
     }
 
     "parse arithemetic expressions with substraction" in {
-      parse("1 - 1") === SubtractionOperation(Constant(FNumber(BigDecimal(1))), Constant(FNumber(BigDecimal(1))))
+      parse("1 - 1") === SubtractionOperation(Constant(FNumber(1)), Constant(FNumber(1)))
     }
 
     "parse arithemetic expressions with multiplication" in {
-      parse("1 * 1") === MultiplicationOperation(Constant(FNumber(BigDecimal(1))), Constant(FNumber(BigDecimal(1))))
+      parse("1 * 1") === MultiplicationOperation(Constant(FNumber(1)), Constant(FNumber(1)))
     }
 
     "parse arithemetic expressions with substraction" in {
-      parse("1 / 1") === DivisionOperation(Constant(FNumber(BigDecimal(1))), Constant(FNumber(BigDecimal(1))))
+      parse("1 / 1") === DivisionOperation(Constant(FNumber(1)), Constant(FNumber(1)))
     }
 
     "parse arithemetic expressions preserving substraction/multiplication priority" in {
       parse("1 + 2 * 3") === AdditionOperation(
         Constant(FNumber(BigDecimal(1))),
-        MultiplicationOperation(Constant(FNumber(BigDecimal(2))), Constant(FNumber(BigDecimal(3))))
+        MultiplicationOperation(Constant(FNumber(2)), Constant(FNumber(3)))
       )
     }
 
     "parse arithemetic expressions preserving parents priority" in {
       parse("(1 + 2) * 3") === MultiplicationOperation(
-        AdditionOperation(Constant(FNumber(BigDecimal(1))), Constant(FNumber(BigDecimal(2)))),
+        AdditionOperation(Constant(FNumber(1)), Constant(FNumber(2))),
         Constant(FNumber(BigDecimal(3)))
+      )
+    }
+
+    "parse >,>=,<,<=,==,!= operator expressions" in {
+      parse("2 > 3") === GreaterThanOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+      parse("2 < 3") === LessThanOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+      parse("2 >= 3") === GreaterOrEqualThanOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+      parse("2 <= 3") === LessOrEqualThanOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+      parse("2 == 3") === EqualOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+      parse("2 != 3") === NotEqualOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+    }
+
+    "parse >,>=,<,<= operator expressions preserving priority of multiplication/addition operations" in {
+      parse("4 > 3 + 2") === GreaterThanOperation(
+        Constant(FNumber(4)),
+        AdditionOperation(Constant(FNumber(3)), Constant(FNumber(2)))
+      )
+      parse("4 >= 2 * 2 + 1") === GreaterOrEqualThanOperation(
+        Constant(FNumber(4)),
+        AdditionOperation(
+          MultiplicationOperation(Constant(FNumber(2)), Constant(FNumber(2))),
+          Constant(FNumber(1))
+        )
+      )
+      parse("2 * 2 + 1 <= 4") === LessOrEqualThanOperation(
+        AdditionOperation(
+          MultiplicationOperation(Constant(FNumber(2)), Constant(FNumber(2))),
+          Constant(FNumber(1))
+        ),
+        Constant(FNumber(4))
       )
     }
 
@@ -107,7 +137,7 @@ class FormulaParserTest extends Specification {
 
   def parse(s: String): Formula = {
     val parser = FormulaParser(s)
-    parser.InputLine.run() match {
+    parser.Line.run() match {
       case Success(result) => result
       case Failure(e: ParseError) => sys.error(parser.formatError(e, new ErrorFormatter(showTraces = true)))
       case Failure(e) => throw e
