@@ -133,6 +133,23 @@ class FormulaParserTest extends Specification {
     "parse '?:' operarator" in {
       parse("true ? 10 : 2") === IfElseOperation(Constant(TrueValue()), Constant(FNumber(10)),  Constant(FNumber(2)))
     }
+
+    "parse &&,|| statements" in {
+      parse("true && false") == AndOperation(Constant(TrueValue()), Constant(FalseValue()))
+      parse("true || false") == OrOperation(Constant(TrueValue()), Constant(FalseValue()))
+    }
+
+    "parse &&,|| statements with correct priority" in {
+      parse("2 > 3 && true") == AndOperation(
+        GreaterThanOperation(Constant(FNumber(2)), Constant(FNumber(3))),
+        Constant(TrueValue())
+      )
+
+      parse("true || 2 > 3") == OrOperation(
+        Constant(TrueValue()),
+        GreaterThanOperation(Constant(FNumber(2)), Constant(FNumber(3)))
+      )
+    }
   }
 
   def parse(s: String): Formula = {

@@ -14,16 +14,23 @@ case class FormulaParser(input: ParserInput) extends Parser
 
   def FormulaRule: Rule1[Formula] = rule {
     Term ~ zeroOrMore(
-      ws('>') ~ Term ~> GreaterThanOperation
-      | ws('<') ~ Term ~> LessThanOperation
-      | ws(">=") ~ Term ~> GreaterOrEqualThanOperation
-      | ws("<=") ~ Term ~> LessOrEqualThanOperation
-      | ws("==") ~ Term ~> EqualOperation
-      | ws("!=") ~ Term ~> NotEqualOperation
+      ws("&&") ~ Term ~> AndOperation
+      | ws("||") ~ Term ~> OrOperation
     )
   }
 
   def Term: Rule1[Formula] = rule {
+    AdditionTerm ~ zeroOrMore(
+      ws('>') ~ AdditionTerm ~> GreaterThanOperation
+      | ws('<') ~ AdditionTerm ~> LessThanOperation
+      | ws(">=") ~ AdditionTerm ~> GreaterOrEqualThanOperation
+      | ws("<=") ~ AdditionTerm ~> LessOrEqualThanOperation
+      | ws("==") ~ AdditionTerm ~> EqualOperation
+      | ws("!=") ~ AdditionTerm ~> NotEqualOperation
+    )
+  }
+
+  def AdditionTerm: Rule1[Formula] = rule {
     FactorTerm ~ zeroOrMore(
       ws('+') ~ FactorTerm ~> AdditionOperation
       | ws('-') ~ FactorTerm ~> SubtractionOperation

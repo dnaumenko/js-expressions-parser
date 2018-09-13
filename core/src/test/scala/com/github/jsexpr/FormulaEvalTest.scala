@@ -85,6 +85,16 @@ class FormulaEvalTest extends Specification {
       eval("4 >= 2 * 2 + 1") === FalseValue()
       eval("2 * 2 + 1 <= 4") === FalseValue()
     }
+
+    "eval &&,|| statements" in {
+      eval("true && false") == FalseValue()
+      eval("true || false") == TrueValue()
+    }
+
+    "parse &&,|| statements with correct priority" in {
+      eval("2 > 3 && true") == FalseValue()
+      eval("true || 2 > 3") == TrueValue()
+    }
   }
 
   def eval(s: String, env: Map[String, Value] = Map.empty): Value = {
