@@ -28,6 +28,18 @@ class StringFunctionsTest extends Specification {
     "support Upper() funciton" in {
       eval("Upper(\"abc\")") === FString("ABC")
     }
+
+    "support ParseBool() funciton" in {
+      eval("ParseBool(\"true\")") === TrueValue()
+    }
+
+    "support ParseInt() funciton" in {
+      eval("ParseInt(\"1\")") === FNumber(1)
+    }
+
+    "support ParseDouble() funciton" in {
+      eval("ParseDouble(\"2.12\")") === FNumber(2.12)
+    }
   }
 
   def eval(s: String, env: Map[String, Value] = Map.empty): Value = {

@@ -10,6 +10,9 @@ object StringFunctions {
     "Contains" -> contains,
     "Lower" -> lower,
     "Upper" -> upper,
+    "ParseInt" -> parseInt,
+    "ParseBool" -> parseBool,
+    "ParseDouble" -> parseDouble,
   )
 
   def startsWith(args: Seq[Value]): Value = stringsToVal(args, (first, second) => bool(first.startsWith(second)))
