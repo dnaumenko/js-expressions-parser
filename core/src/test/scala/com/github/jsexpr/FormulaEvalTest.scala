@@ -1,6 +1,5 @@
 package com.github.jsexpr
 
-import com.github.jsexpr.FormulaAST._
 import com.github.jsexpr.FormulaValue._
 import org.parboiled2.{ErrorFormatter, ParseError}
 import org.specs2.mutable.Specification
